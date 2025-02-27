@@ -55,7 +55,7 @@ locals {
           description               = try(glue_job_config.description, "${glue_job_key} glue job for ${data_pipeline_key} pipeline.")
           role_custom_policy        = try(glue_job_config.role_custom_policy, {})
           connections               = try(glue_job_config.connections, [])
-          glue_version              = try(glue_job_config.glue_version, "4.0")
+          glue_version              = try(glue_job_config.glue_version, "5.0")
           default_arguments         = try(glue_job_config.default_arguments, {})
           non_overridable_arguments = try(glue_job_config.non_overridable_arguments, null)
           security_configuration    = try(glue_job_config.security_configuration, null)
