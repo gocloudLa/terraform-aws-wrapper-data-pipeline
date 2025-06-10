@@ -27,6 +27,24 @@ module "wrapper_glue_job" {
   tags                      = each.value.tags
 }
 
+module "wrapper_glue_connector" {
+  source = "./wrapper_glue_connector"
+
+  for_each = local.glue_connector_parameters
+
+  metadata = var.metadata
+
+  create                           = each.value.create
+  name                             = each.value.name
+  description                      = each.value.description
+  catalog_id                       = each.value.catalog_id
+  connection_properties            = each.value.connection_properties
+  connection_type                  = each.value.connection_type
+  match_criteria                   = each.value.match_criteria
+  physical_connection_requirements = each.value.physical_connection_requirements
+  tags                             = each.value.tags
+}
+
 module "wrapper_glue_crawler" {
   source = "./wrapper_glue_crawler"
 
