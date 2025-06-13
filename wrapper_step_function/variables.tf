@@ -16,10 +16,6 @@ variable "create" {
   default     = true
 }
 
-variable "tags" {
-  description = "(Required) A mapping of tags to assign to resources."
-  type        = map(string)
-}
 
 variable "description" {
   description = "(Optional) resources description."
@@ -32,40 +28,41 @@ variable "name" {
   type        = string
 }
 
-variable "role_custom_policy" {
-  description = "(Optional) A map of IAM policies for the step function service role to make calls to AWS services like S3, DynamoDB, etc."
+variable "definition" {
+  description = "(Required) The Amazon States Language definition of the state machine."
   type        = any
-  default     = {}
 }
-
-variable "type" {
-  description = "(Optional) Determines whether a Standard or Express state machine is created. The default is STANDARD. You cannot update the type of a state machine once it has been created. Valid values: STANDARD, EXPRESS."
-  type        = string
-  default     = "STANDARD"
-
-  validation {
-    condition     = contains(["STANDARD", "EXPRESS"], var.type)
-    error_message = "Supported are: STANDARD, EXPRESS"
+variable "encryption_configuration" {
+  description = "(Optional) Defines what encryption configuration is used to encrypt data in the State Machine. For more information see [TBD] in the AWS Step Functions User Guide."
+  type        = map(any)
+}
+variable "logging_configuration" {
+  description = "(Optional) Defines what execution history events are logged and where they are logged. The logging_configuration parameter is valid when type is set to STANDARD or EXPRESS. Defaults to OFF. For more information see Logging Express Workflows, Log Levels and Logging Configuration in the AWS Step Functions User Guide."
+  type        = map(string)
+  default = {
+    level = "ON"
   }
 }
 
-variable "definition" {
-  description = "(Required) The Amazon States Language definition of the Step Function"
-  type        = any
-}
-
 variable "publish" {
-  description = "(Optional) Determines whether to set a version of the state machine when it is created."
+  description = "(Optional) Set to true to publish a version of the state machine during creation. Default: false."
   type        = bool
   default     = false
 }
 
-variable "logging_configuration" {
-  description = "(Optional) Defines what execution history events are logged and where they are logged"
-  type        = map(string)
-  default = {
-    level = "OFF"
+variable "enable_xray_tracing" {
+  description = "(Optional) Selects whether AWS X-Ray tracing is enabled."
+  type        = bool
+  default     = false
+}
+variable "type" {
+  description = "(Optional) Determines whether a Standard or Express state machine is created. The default is STANDARD. You cannot update the type of a state machine once it has been created. Valid values: STANDARD, EXPRESS."
+  type        = string
+  validation {
+    condition     = contains(["STANDARD", "EXPRESS"], var.type)
+    error_message = "Supported are: STANDARD, EXPRESS"
   }
+  default = "STANDARD"
 }
 
 variable "cloudwatch_log_group_retention_in_days" {
@@ -77,15 +74,20 @@ variable "cloudwatch_log_group_retention_in_days" {
   }
   default = 30
 }
-
-variable "enable_xray_tracing" {
-  description = "(Optional) Selects whether AWS X-Ray tracing is enabled."
-  type        = bool
-  default     = false
+variable "iam_role_permissions" {
+  description = "(Required) A List of the resources managed from the state machine."
+  type        = map(any)
+  default     = {}
 }
 
-variable "iam_role_permissions" {
-  description = "(Optional) A map of parameters to manage the iam role permissions for the execution actions."
-  type        = any
+variable "scheduler" {
+  description = "(Optional) Map of Eventbridge schedulers that will trigger Step Functions ."
+  type        = map(any)
   default     = {}
+}
+
+
+variable "tags" {
+  description = "(Required) A mapping of tags to assign to resources."
+  type        = map(string)
 }

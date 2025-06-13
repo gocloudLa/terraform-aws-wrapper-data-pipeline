@@ -2,18 +2,6 @@ data "aws_region" "current" {}
 
 data "aws_caller_identity" "current" {}
 
-## Ref: https://docs.aws.amazon.com/ARG/latest/userguide/supported-resources.html
-data "aws_resourcegroupstaggingapi_resources" "labels_discovery" {
-  count = var.create ? 1 : 0
-
-  resource_type_filters = ["ec2:vpc"]
-
-  tag_filter {
-    key    = "tfc-module/wrap-source"
-    values = ["terraform-aws-account-baseline"]
-  }
-}
-
 data "aws_vpc" "this" {
   count = var.create ? 1 : 0
 
@@ -82,7 +70,7 @@ data "aws_iam_policy_document" "access" {
       actions = [
         "lambda:InvokeFunction"
       ]
-      resources = try(var.iam_role_permissions["lambda_integration_arns"], [])
+      resources = ["*"]
     }
   }
 
@@ -98,7 +86,7 @@ data "aws_iam_policy_document" "access" {
         "glue:GetJobRuns",
         "glue:BatchStopJobRun"
       ]
-      resources = try(var.iam_role_permissions["glue_jobs_integration_arns"], [])
+      resources = ["*"]
     }
   }
 
@@ -114,7 +102,7 @@ data "aws_iam_policy_document" "access" {
         "states:DescribeExecution",
         "states:StopExecution"
       ]
-      resources = try(var.iam_role_permissions["step_functions_integration_arns"], [])
+      resources = ["*"]
     }
   }
 
@@ -129,7 +117,7 @@ data "aws_iam_policy_document" "access" {
         "events:PutRule",
         "events:DescribeRule"
       ]
-      resources = ["arn:aws:events:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:rule/StepFunctionsGetEventsForStepFunctionsExecutionRule"]
+      resources = ["*"]
     }
   }
 
@@ -141,9 +129,9 @@ data "aws_iam_policy_document" "access" {
       actions = [
         "events:PutEvents"
       ]
-      resources = try(var.iam_role_permissions["event_bridge_events_integration_arns"], [])
+      resources = ["*"]
     }
   }
 
-  override_policy_documents = [jsonencode(var.role_custom_policy)]
+  # override_policy_documents = [jsonencode(var.role_custom_policy)]
 }

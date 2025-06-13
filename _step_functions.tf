@@ -16,6 +16,8 @@ locals {
           cloudwatch_log_group_retention_in_days = try(step_function_config.cloudwatch_log_group_retention_in_days, 30)
           enable_xray_tracing                    = try(step_function_config.enable_xray_tracing, false)
           iam_role_permissions                   = try(step_function_config.iam_role_permissions, {})
+          encryption_configuration               = try(step_function_config.encryption_configuration,{})
+          scheduler                              = try(step_function_config.scheduler, {})
           tags                                   = merge(lookup(step_function_config, "tags", local.common_tags), { Name = "${local.common_name}-${data_pipeline_key}-${step_function_key}" })
         }
       } if((length(lookup(data_pipeline_config, "orchestration", {})) > 0) && (step_function_config.service == "step-function" ? true : false))

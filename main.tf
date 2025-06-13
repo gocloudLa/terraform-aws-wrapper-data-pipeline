@@ -83,14 +83,15 @@ module "wrapper_step_function" {
   create                                 = each.value.create
   name                                   = each.value.name
   description                            = each.value.description
-  role_custom_policy                     = each.value.role_custom_policy
   type                                   = each.value.type
   definition                             = each.value.definition
   publish                                = each.value.publish
   logging_configuration                  = each.value.logging_configuration
   cloudwatch_log_group_retention_in_days = each.value.cloudwatch_log_group_retention_in_days
+  encryption_configuration               = each.value.encryption_configuration
   enable_xray_tracing                    = each.value.enable_xray_tracing
   iam_role_permissions                   = each.value.iam_role_permissions
+  scheduler                              = each.value.scheduler 
   tags                                   = each.value.tags
 }
 
