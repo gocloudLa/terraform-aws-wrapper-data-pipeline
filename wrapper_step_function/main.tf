@@ -1,7 +1,6 @@
 /*----------------------------------------------------------------------*/
 /* Step functions                                                       */
 /*----------------------------------------------------------------------*/
-
 resource "aws_sfn_state_machine" "this" {
   count = var.create ? 1 : 0
 
@@ -107,9 +106,9 @@ module "eventbridge" {
 
   create = each.value.create
 
-  create_bus = false
-
+  create_bus        = false
   attach_sfn_policy = true
+  role_name         = "${var.name}-${each.key}"
   sfn_target_arns   = [aws_sfn_state_machine.this[0].arn]
 
   schedules = {

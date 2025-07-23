@@ -3,10 +3,10 @@ locals {
   schedule_parameters_tmp = [
     for schedule_key, schedule_config in var.scheduler :
     {
-      "${schedule_key}" = {
-        create              = try(schedule_config.create, true)
-        name                = try(schedule_config.name, schedule_key)
-        description         = try(schedule_config.description, "${schedule_key} rule to trigger Step Function datapipeline")
+      "${var.name}-${schedule_key}" = {
+        create = try(schedule_config.create, true)
+        # name                = "${var.name}-${schedule_key}"
+        description         = try(schedule_config.description, "${var.name}-${schedule_key} rule to trigger Step Function datapipeline")
         timezone            = try(schedule_config.timezone, "America/BuenosAires")
         schedule_expression = try(schedule_config.cron, null)
         input               = try(schedule_config.input, "")
