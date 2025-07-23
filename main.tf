@@ -5,26 +5,28 @@ module "wrapper_glue_job" {
 
   metadata = var.metadata
 
-  create                    = each.value.create
-  name                      = each.value.name
-  description               = each.value.description
-  role_custom_policy        = each.value.role_custom_policy
-  connections               = each.value.connections
-  glue_version              = each.value.glue_version
-  default_arguments         = each.value.default_arguments
-  non_overridable_arguments = each.value.non_overridable_arguments
-  security_configuration    = each.value.security_configuration
-  timeout                   = each.value.timeout
-  execution_class           = each.value.execution_class
-  max_capacity              = each.value.max_capacity
-  max_retries               = each.value.max_retries
-  worker_type               = each.value.worker_type
-  number_of_workers         = each.value.number_of_workers
-  command                   = each.value.command
-  execution_property        = each.value.execution_property
-  notification_property     = each.value.notification_property
-  kms_arn                   = each.value.kms_arn
-  tags                      = each.value.tags
+  create                      = each.value.create
+  name                        = each.value.name
+  description                 = each.value.description
+  role_custom_policy          = each.value.role_custom_policy
+  connections                 = each.value.connections
+  glue_version                = each.value.glue_version
+  create_parameter_store      = each.value.create_parameter_store
+  custom_parameter_store_name = each.value.custom_parameter_store_name
+  default_arguments           = each.value.default_arguments
+  non_overridable_arguments   = each.value.non_overridable_arguments
+  security_configuration      = each.value.security_configuration
+  timeout                     = each.value.timeout
+  execution_class             = each.value.execution_class
+  max_capacity                = each.value.max_capacity
+  max_retries                 = each.value.max_retries
+  worker_type                 = each.value.worker_type
+  number_of_workers           = each.value.number_of_workers
+  command                     = each.value.command
+  execution_property          = each.value.execution_property
+  notification_property       = each.value.notification_property
+  kms_arn                     = each.value.kms_arn
+  tags                        = each.value.tags
 }
 
 module "wrapper_glue_connector" {
@@ -91,7 +93,7 @@ module "wrapper_step_function" {
   encryption_configuration               = each.value.encryption_configuration
   enable_xray_tracing                    = each.value.enable_xray_tracing
   iam_role_permissions                   = each.value.iam_role_permissions
-  scheduler                              = each.value.scheduler 
+  scheduler                              = each.value.scheduler
   tags                                   = each.value.tags
 }
 
