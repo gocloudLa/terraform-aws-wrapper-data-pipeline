@@ -46,12 +46,11 @@ resource "aws_glue_job" "this" {
 /*----------------------------------------------------------------------*/
 /* IAM role                                                             */
 /*----------------------------------------------------------------------*/
-
 resource "aws_iam_role" "this" {
   count = var.create ? 1 : 0
 
   tags        = var.tags
-  name        = "${var.name}-role"
+  name        = substr("${var.name}-role", 0, 64)
   description = var.description
 
   assume_role_policy = jsonencode({
@@ -67,9 +66,26 @@ resource "aws_iam_role" "this" {
       },
     ]
   })
+}
+resource "aws_iam_role_policy" "this" {
+  count = var.create ? 1 : 0
 
-  inline_policy {
-    name   = var.name
-    policy = one(data.aws_iam_policy_document.this[*].json)
-  }
+  name   = substr("${var.name}-pol", 0, 64)
+  role   = aws_iam_role.this[0].name
+  policy = one(data.aws_iam_policy_document.this[*].json)
+}
+
+/*----------------------------------------------------------------------*/
+/* Parameter Store                                                      */
+/*----------------------------------------------------------------------*/
+resource "aws_ssm_parameter" "this" {
+  count = var.create_parameter_store ? 1 : 0
+
+  name        = var.custom_parameter_store_name != null ? var.custom_parameter_store_name : "/terraform/${var.name}"
+  description = var.description
+  tier        = "Standard"
+  type        = "String"
+  value       = "{}"
+
+  tags = var.tags
 }

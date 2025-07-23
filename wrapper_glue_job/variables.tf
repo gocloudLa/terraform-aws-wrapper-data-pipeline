@@ -49,6 +49,18 @@ variable "glue_version" {
   default     = "4.0"
 }
 
+variable "create_parameter_store" {
+  description = "(Optional) Enables the creation of a custom parameter store that will be used for the ETL."
+  type        = bool
+  default     = false
+}
+
+variable "custom_parameter_store_name" {
+  description = "(Optional) Custom name for the parameter createed."
+  type        = string
+  default     = null
+}
+
 variable "default_arguments" {
   description = "(Optional) The map of default arguments for the job. You can specify arguments here that your own job-execution script consumes, as well as arguments that AWS Glue itself consumes."
   type        = map(string)
