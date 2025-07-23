@@ -27,25 +27,28 @@ resource "aws_glue_connection" "this" {
 
 resource "aws_security_group" "this" {
   count = var.create ? 1 : 0
+
   name        = "${var.name}-sg"
   description = "Allow all traffic from within the VPC, allow all outbound, for ${var.name} aws glue connection"
   vpc_id      = data.aws_subnet.this[0].vpc_id
+
+  tags = var.tags
 }
 
 # Allow all inbound traffic from within the VPC
 resource "aws_security_group_rule" "ingress_from_vpc" {
-  count = var.create ? 1 : 0
+  count             = var.create ? 1 : 0
   type              = "ingress"
   from_port         = 0
   to_port           = 0
-  protocol          = "-1"  # all protocols
-  cidr_blocks       = [data.aws_subnet.this[0].cidr_block]
+  protocol          = "-1" # all protocols
+  cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.this[0].id
 }
 
 # Allow all outbound traffic (egress to anywhere)
 resource "aws_security_group_rule" "egress_all" {
-  count = var.create ? 1 : 0
+  count             = var.create ? 1 : 0
   type              = "egress"
   from_port         = 0
   to_port           = 0

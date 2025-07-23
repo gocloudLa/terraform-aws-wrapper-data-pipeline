@@ -62,5 +62,5 @@ variable "physical_connection_requirements" {
     subnet_id              = string
     security_group_id_list = list(string)
   })
-  default     = null
+  default = null
 }
