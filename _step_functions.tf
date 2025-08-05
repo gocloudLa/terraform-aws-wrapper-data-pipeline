@@ -6,7 +6,7 @@ locals {
       {
         "${step_function_key}" = {
           create                                 = try(step_function_config.create, true)
-          name                                   = try(step_function_config.name, "${data_pipeline_key}-${step_function_key}")
+          name                                   = try(step_function_config.name, "${step_function_key}")
           description                            = try(step_function_config.description, "${step_function_key} Step Funtion for ${data_pipeline_key} datapipeline")
           role_custom_policy                     = try(step_function_config.role_custom_policy, {})
           type                                   = try(step_function_config.type, "STANDARD")

@@ -20,6 +20,7 @@ locals {
 
   create_role_policy_lambda              = var.create && try(var.iam_role_permissions.create_lambda_integration, false) != false ? 1 : 0
   create_role_policy_glue_jobs           = var.create && try(var.iam_role_permissions.create_glue_jobs_integration, false) != false ? 1 : 0
+  create_role_policy_sns_publish         = var.create && try(var.iam_role_permissions.create_role_policy_sns_publish, true) != true ? 0 : 1
   create_role_policy_step_functions      = var.create && try(var.iam_role_permissions.create_step_functions_integration, false) != false ? 1 : 0
   create_role_policy_event_bridge_events = var.create && try(var.iam_role_permissions.create_event_bridge_events_integration, false) != false ? 1 : 0
 }

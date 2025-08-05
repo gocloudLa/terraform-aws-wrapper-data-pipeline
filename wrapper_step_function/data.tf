@@ -133,5 +133,17 @@ data "aws_iam_policy_document" "access" {
     }
   }
 
+  # Permiso para publicar en un tópico SNS desde Step Functions
+  dynamic "statement" {
+    for_each = local.create_role_policy_sns_publish > 0 ? [1] : []
+    content {
+      sid = "SnsPublishAccess"
+      actions = [
+        "sns:Publish"
+      ]
+      resources = ["*"]
+    }
+  }
+
   # override_policy_documents = [jsonencode(var.role_custom_policy)]
 }
