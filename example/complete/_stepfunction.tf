@@ -1,106 +1,66 @@
 locals {
-  step_functions_ventas_minoristas = {
-    "Comment" : "An example of using Athena to execute queries in sequence and parallel, with error handling and notifications.",
-    "StartAt" : "Generate Example Data",
-    "QueryLanguage" : "JSONata",
-    "States" : {
-      "Generate Example Data" : {
-        "Type" : "Task",
-        "Resource" : "arn:aws:states:::lambda:invoke",
-        "Next" : "Load Data to Database",
-        "Arguments" : {
-          "FunctionName" : "MyLambdaFunction"
-        },
-        "Output" : "{% $states.result.Payload %}"
+  step_functions_workflow_01_definition = <<EOF
+{
+  "Comment": "Example Glue Job Execution with SNS failure notification",
+  "StartAt": "gcl-l01-test-datapipeline-example-etl-01",
+  "States": {
+    "gcl-l01-test-datapipeline-example-etl-01": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::glue:startJobRun.sync",
+      "Parameters": {
+        "JobName": "gcl-l01-test-datapipeline-example-etl-01"
       },
-      "Load Data to Database" : {
-        "Type" : "Task",
-        "Resource" : "arn:aws:states:::athena:startQueryExecution.sync",
-        "Catch" : [
-          {
-            "ErrorEquals" : [
-              "States.ALL"
-            ],
-            "Next" : "Send query results"
-          }
-        ],
-        "Next" : "Map",
-        "Arguments" : {
-          "QueryString" : "<ATHENA_QUERY_STRING>",
-          "WorkGroup" : "<ATHENA_WORKGROUP>"
+      "Retry": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "IntervalSeconds": 30,
+          "MaxAttempts": 2,
+          "BackoffRate": 1.5
         }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "NotifyFailure"
+        }
+      ],
+      "Next": "gcl-l01-test-datapipeline-example-etl-02"
+    },
+    "gcl-l01-test-datapipeline-example-etl-02": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::glue:startJobRun.sync",
+      "Parameters": {
+        "JobName": "gcl-l01-test-datapipeline-example-etl-02"
       },
-      "Map" : {
-        "Type" : "Parallel",
-        "Branches" : [
-          {
-            "StartAt" : "Start Athena query 1",
-            "States" : {
-              "Start Athena query 1" : {
-                "Type" : "Task",
-                "Resource" : "arn:aws:states:::athena:startQueryExecution.sync",
-                "Next" : "Get Athena query 1 results",
-                "Arguments" : {
-                  "QueryString" : "<ATHENA_QUERY_STRING>",
-                  "WorkGroup" : "<ATHENA_WORKGROUP>"
-                }
-              },
-              "Get Athena query 1 results" : {
-                "Type" : "Task",
-                "Resource" : "arn:aws:states:::athena:getQueryResults",
-                "End" : true,
-                "Arguments" : {
-                  "QueryExecutionId" : "{% $states.input.QueryExecution.QueryExecutionId %}"
-                }
-              }
-            }
-          },
-          {
-            "StartAt" : "Start Athena query 2",
-            "States" : {
-              "Start Athena query 2" : {
-                "Type" : "Task",
-                "Resource" : "arn:aws:states:::athena:startQueryExecution.sync",
-                "Next" : "Get Athena query 2 results",
-                "Arguments" : {
-                  "QueryString" : "<ATHENA_QUERY_STRING>",
-                  "WorkGroup" : "<ATHENA_WORKGROUP>"
-                }
-              },
-              "Get Athena query 2 results" : {
-                "Type" : "Task",
-                "Resource" : "arn:aws:states:::athena:getQueryResults",
-                "End" : true,
-                "Arguments" : {
-                  "QueryExecutionId" : "{% $states.input.QueryExecution.QueryExecutionId %}"
-                }
-              }
-            }
-          }
-        ],
-        "Catch" : [
-          {
-            "ErrorEquals" : [
-              "States.ALL"
-            ],
-            "Next" : "Send query results"
-          }
-        ],
-        "Next" : "Send query results",
-        "Output" : {
-          "Query1Result" : "{% $states.result[0].ResultSet.Rows %}",
-          "Query2Result" : "{% $states.result[1].ResultSet.Rows %}"
+      "Retry": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "IntervalSeconds": 30,
+          "MaxAttempts": 2,
+          "BackoffRate": 1.5
         }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "NotifyFailure"
+        }
+      ],
+      "End": true
+    },
+    "NotifyFailure": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn": "arn:aws:sns:us-east-1:${data.aws_caller_identity.current.id}:workflow-01-failure-alerts",
+        "Message.$": "States.Format('Glue job step \"{}\" failed. Error details: {}', $$.State.Name, $.error.Cause)",
+        "Subject": "Glue Job Execution Failed"
       },
-      "Send query results" : {
-        "Type" : "Task",
-        "Resource" : "arn:aws:states:::sns:publish",
-        "End" : true,
-        "Arguments" : {
-          "Message" : "{% $states.input %}",
-          "TopicArn" : "arn:aws:sns:us-east-1:<ACCOUNT_ID>:MySnsTopic"
-        }
-      }
+      "End": true
     }
   }
+}
+EOF
 }
