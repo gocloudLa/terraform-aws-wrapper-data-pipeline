@@ -73,6 +73,9 @@ module "wrapper_data_pipeline" {
 
           non_overridable_arguments = local.default_non_overridable_arguments
 
+          create_parameter_store      = true
+          custom_parameter_store_name = "/terraform/example/etl-02-parameter"
+
           default_arguments = {
             "--landing-zone"    = "${module.s3_storage_bucket.s3_bucket_id}"
             # "--parameter-store" = "/terraform/example/databae-connections"
