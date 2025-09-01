@@ -1,8 +1,8 @@
 locals {
 
   metadata = {
-    aws_region  = "us-east-1"
-    environment = "Laboratory01"
+    aws_region     = "us-east-1"
+    environment    = "Laboratory01"
     project        = "test"
     public_domain  = "gocloud.cloud"
     private_domain = "gocloud"
@@ -14,7 +14,7 @@ locals {
       project = "test"
     }
   }
-  
+
   common_name_base = join("-", [
     local.metadata.key.company,
     local.metadata.key.env

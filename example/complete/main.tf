@@ -47,9 +47,9 @@ module "wrapper_data_pipeline" {
           non_overridable_arguments = local.default_non_overridable_arguments
 
           default_arguments = {
-            "--landing-zone"    = "${module.s3_storage_bucket.s3_bucket_id}"
+            "--landing-zone" = "${module.s3_storage_bucket.s3_bucket_id}"
             # "--parameter-store" = "/terraform/example/databae-connections"
-            "--job-directory"   = "s3://${module.s3_etl_bucket.s3_bucket_id}/etl/etl-01"
+            "--job-directory" = "s3://${module.s3_etl_bucket.s3_bucket_id}/etl/etl-01"
           }
 
           command = {
@@ -77,9 +77,9 @@ module "wrapper_data_pipeline" {
           custom_parameter_store_name = "/terraform/example/etl-02-parameter"
 
           default_arguments = {
-            "--landing-zone"    = "${module.s3_storage_bucket.s3_bucket_id}"
+            "--landing-zone" = "${module.s3_storage_bucket.s3_bucket_id}"
             # "--parameter-store" = "/terraform/example/databae-connections"
-            "--job-directory"   = "s3://${module.s3_etl_bucket.s3_bucket_id}/etl/etl-02"
+            "--job-directory" = "s3://${module.s3_etl_bucket.s3_bucket_id}/etl/etl-02"
           }
 
           command = {

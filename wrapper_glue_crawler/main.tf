@@ -128,7 +128,7 @@ resource "aws_iam_role" "glue_crawler" {
 
   dynamic "inline_policy" {
     for_each = var.inline_role_policy != null ? [true] : []
-    
+
     content {
       name   = var.inline_role_policy.name
       policy = var.inline_role_policy.policy
@@ -137,8 +137,8 @@ resource "aws_iam_role" "glue_crawler" {
 }
 
 resource "aws_iam_role_policy_attachments_exclusive" "glue_role_policy_attachment" {
-  
+
   role_name   = aws_iam_role.glue_crawler[0].name
-  policy_arns = ["arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"] 
+  policy_arns = ["arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"]
 
 }
