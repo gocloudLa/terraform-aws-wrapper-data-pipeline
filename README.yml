@@ -1,0 +1,139 @@
+module_name: Terraform AWS Data Pipeline Module
+module_description: The Terraform wrapper for AWS Data Pipeline simplifies the orchestration and deployment of data transformation and processing services in AWS. This wrapper functions as a standardized template that abstracts technical complexity and allows building reusable data pipelines that integrate AWS Glue Jobs, Glue Connectors, Parameter Store, Step Functions, and EventBridge.
+module_badges:
+  - url: "https://github.com/gocloudLa/terraform-aws-data-pipeline/releases/latest"
+    image: "https://img.shields.io/github/v/release/gocloudLa/terraform-aws-data-pipeline.svg?style=for-the-badge"
+    alt: "Latest Release"
+  - url: ""
+    image: "https://img.shields.io/github/last-commit/gocloudLa/terraform-aws-data-pipeline.svg?style=for-the-badge"
+    alt: "Last Commit"
+  - url: "https://registry.terraform.io/modules/gocloudLa/data-pipeline/aws"
+    image: "https://img.shields.io/badge/Terraform-Registry-7B42BC?style=for-the-badge&logo=terraform&logoColor=white"
+    alt: "Terraform Registry"
+quick_start: |
+  ```hcl
+  module "wrapper_data_pipeline" {
+    source = "../../"
+    metadata = local.metadata
+
+    data_pipeline_parameters = {
+      "datapipeline-example" = {
+        connectors = {
+          "connector" = {
+            connection_type = "NETWORK"
+            physical_connection_requirements = {
+              subnet_id              = data.aws_subnets.private-prd.ids[0]
+              security_group_id_list = []
+            }
+          }
+        }
+        jobs = {
+          "etl-01" = {
+            description  = "Glue Job that runs Python script"
+            max_retries  = 0
+            max_capacity = 1
+            timeout      = 120
+            glue_version = "5.0"
+
+            connections = ["${local.common_name}-datapipeline-example-connector"]
+
+            role_custom_policy = local.default_role_policy
+
+            non_overridable_arguments = local.default_non_overridable_arguments
+
+            default_arguments = {
+              "--landing-zone"    = "${module.s3_storage_bucket.s3_bucket_id}"
+              "--job-directory"   = "s3://${module.s3_etl_bucket.s3_bucket_id}/ETL/ETL-01"
+            }
+
+            command = {
+              name            = "pythonshell"
+              script_location = "s3://${module.s3_etl_bucket.s3_bucket_id}/ETL/ETL-01/main.py"
+              python_version  = "3.9"
+            }
+          }
+        }
+        orchestration = {
+          "workflow-01" = {
+            service    = "step-function"
+            definition = local.step_functions_workflow_01_definition
+            scheduler = {
+              "schedule" = {
+                cron     = "cron(0 12 * * ? *)"
+                timezone = "America/Argentina/Buenos_Aires"
+                input    = "{\"Arguments\": {\"--scriptLocation\": \"s3://my-bucket/path/to/new_script.py\"}}"
+              }
+            }
+
+            logging_configuration = {
+              include_execution_data = true
+              level                  = "ALL"
+            }
+            iam_role_permissions = {
+              create_glue_jobs_integration = true
+            }
+          }
+        }
+      }
+    }
+  }
+  ```
+features:
+  - icon: 🔧
+    title: Glue Jobs Management
+    short_description: Manages AWS Glue Jobs for serverless ETL processing
+    long_description: |
+      Deploy and manage AWS Glue Jobs that execute serverless ETL processes. Configure job parameters, connections, arguments, timeouts, and retry policies.
+  - icon: 🔗
+    title: Glue Connectors
+    short_description: Integrates data sources and destinations through Glue Connectors
+    long_description: |
+      Configure Glue Connectors to integrate various data sources and destinations with your data pipeline.
+  - icon: 📊
+    title: Parameter Store Integration
+    short_description: Manages secure and reusable configurations
+    long_description: |
+      Store and manage pipeline configurations securely using AWS Parameter Store for reusable and centralized configuration management.
+  - icon: 🔄
+    title: Step Functions Orchestration
+    short_description: Orchestrates complex workflow processes
+    long_description: |
+      Use AWS Step Functions to orchestrate complex data pipeline workflows with scheduling, error handling, and state management.
+  - icon: 📅
+    title: EventBridge Scheduling
+    short_description: Programs and triggers pipeline events
+    long_description: |
+      Configure EventBridge for scheduling and triggering events that initiate or coordinate data pipeline processes.
+  - icon: 🔐
+    title: Security Configuration
+    short_description: Manages security policies and permissions
+    long_description: |
+      Automatically handles security aspects including IAM roles, policies, and permissions for all pipeline components.
+  - icon: ⚙️
+    title: Custom Policies
+    short_description: Supports custom IAM policies and configurations
+    long_description: |
+      Define and apply custom IAM policies and configurations tailored to specific pipeline requirements.
+  - icon: 🔌
+    title: Connections Integration
+    short_description: Manages connections to external data sources
+    long_description: |
+      Configure and manage connections to external data sources and services within your data pipeline.
+  - icon: 📝
+    title: Arguments Definition
+    short_description: Configures job arguments and parameters
+    long_description: |
+      Define default and non-overridable arguments for Glue jobs to ensure consistent execution parameters.
+  - icon: ⏱️
+    title: Timeouts and Retry Configuration
+    short_description: Manages execution timeouts and retry policies
+    long_description: |
+      Configure execution timeouts and maximum retry attempts to ensure reliable pipeline execution.
+important_notes: |
+  - **🚨 Job Configuration:** Changes to Glue job configurations may require redeployment. Test thoroughly in development environments.
+  - **⚠️ IAM Permissions:** Ensure proper IAM permissions are configured for cross-service integrations.
+  - **ℹ️ Resource Limits:** Monitor Glue job capacity and Step Function execution limits to avoid throttling.
+input_table: |
+  | data_pipeline_parameters | Data pipeline parameters to configure data pipeline module | `any` | `{}` | no |
+  | data_pipeline_defaults | Data pipeline defaults parameters to configure data pipeline module | `any` | `{}` | no |
+  | metadata | Common project information (naming, tags, etc.) | `any` | n/a | yes |
