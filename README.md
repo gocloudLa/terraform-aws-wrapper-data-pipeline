@@ -10,35 +10,33 @@ The Terraform wrapper for AWS Data Pipeline simplifies the orchestration and dep
 
 ### ✨ Features
 
-- 🔧 **Glue Jobs Management** - Manages AWS Glue Jobs for serverless ETL processing
+- 🔧 [Glue Jobs Management](#glue-jobs-management) - Manages AWS Glue Jobs for serverless ETL processing
 
-- 🔗 **Glue Connectors** - Integrates data sources and destinations through Glue Connectors
+- 🔗 [Glue Connectors](#glue-connectors) - Integrates data sources and destinations through Glue Connectors
 
-- 📊 **Parameter Store Integration** - Manages secure and reusable configurations
+- 📊 [Parameter Store Integration](#parameter-store-integration) - Manages secure and reusable configurations
 
-- 🔄 **Step Functions Orchestration** - Orchestrates complex workflow processes
+- 🔄 [Step Functions Orchestration](#step-functions-orchestration) - Orchestrates complex workflow processes
 
-- 📅 **EventBridge Scheduling** - Programs and triggers pipeline events
+- 📅 [EventBridge Scheduling](#eventbridge-scheduling) - Programs and triggers pipeline events
 
-- 🔐 **Security Configuration** - Manages security policies and permissions
+- 🔐 [Security Configuration](#security-configuration) - Manages security policies and permissions
 
-- ⚙️ **Custom Policies** - Supports custom IAM policies and configurations
+- ⚙️ [Custom Policies](#custom-policies) - Supports custom IAM policies and configurations
 
-- 🔌 **Connections Integration** - Manages connections to external data sources
+- 🔌 [Connections Integration](#connections-integration) - Manages connections to external data sources
 
-- 📝 **Arguments Definition** - Configures job arguments and parameters
+- 📝 [Arguments Definition](#arguments-definition) - Configures job arguments and parameters
 
-- ⏱️ **Timeouts and Retry Configuration** - Manages execution timeouts and retry policies
+- ⏱️ [Timeouts and Retry Configuration](#timeouts-and-retry-configuration) - Manages execution timeouts and retry policies
 
 
 
 ### 🔗 External Modules
 | Name | Version |
 |------|------:|
-| <a href="https://github.com/terraform-aws-modules/terraform-aws-eventbridge" target="_blank">terraform-aws-modules/eventbridge/aws</a> | 4.1.0 |
-| <a href="https://github.com/terraform-aws-modules/terraform-aws-step-functions" target="_blank">terraform-aws-modules/step-functions/aws</a> | 4.2.0 |
-| <a href="https://github.com/terraform-aws-modules/terraform-aws-iam" target="_blank">terraform-aws-modules/iam/aws</a> | 5.44.0 |
-| <a href="https://github.com/terraform-aws-modules/terraform-aws-ssm-parameter" target="_blank">terraform-aws-modules/ssm-parameter/aws</a> | 1.1.2 |
+| <a href="https://github.com/terraform-aws-modules/terraform-aws-eventbridge" target="_blank">terraform-aws-modules/eventbridge/aws</a> | 3.14.3 |
+| <a href="https://github.com/terraform-aws-modules/terraform-aws-s3-bucket" target="_blank">terraform-aws-modules/s3-bucket/aws</a> | 4.1.2 |
 
 
 
@@ -112,33 +110,66 @@ module "wrapper_data_pipeline" {
 ```
 
 
-## 🔧 Component Configuration
+## 🔧 Additional Features Usage
 
-### Glue Jobs
-Configure AWS Glue Jobs for ETL processing with custom arguments, connections, and execution parameters.
+### Glue Jobs Management
+Deploy and manage AWS Glue Jobs that execute serverless ETL processes. Configure job parameters, connections, arguments, timeouts, and retry policies.
+
+
 
 ### Glue Connectors
-Set up connections to external data sources and destinations for your data pipeline.
-
-### Step Functions
-Orchestrate complex workflows with AWS Step Functions, including scheduling and error handling.
-
-### Parameter Store
-Manage secure configuration parameters for your data pipeline components.
-
-### EventBridge
-Schedule and trigger pipeline events using EventBridge rules and targets.
+Configure Glue Connectors to integrate various data sources and destinations with your data pipeline.
 
 
 
+### Parameter Store Integration
+Store and manage pipeline configurations securely using AWS Parameter Store for reusable and centralized configuration management.
 
-## 📝 Inputs
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|----------|
-| data_pipeline_parameters | Data pipeline parameters to configure data pipeline module | `any` | `{}` | no |
-| data_pipeline_defaults | Data pipeline defaults parameters to configure data pipeline module | `any` | `{}` | no |
-| metadata | Common project information (naming, tags, etc.) | `any` | n/a | yes |
 
+
+### Step Functions Orchestration
+Use AWS Step Functions to orchestrate complex data pipeline workflows with scheduling, error handling, and state management.
+
+
+
+### EventBridge Scheduling
+Configure EventBridge for scheduling and triggering events that initiate or coordinate data pipeline processes.
+
+
+
+### Security Configuration
+Automatically handles security aspects including IAM roles, policies, and permissions for all pipeline components.
+
+
+
+### Custom Policies
+Define and apply custom IAM policies and configurations tailored to specific pipeline requirements.
+
+
+
+### Connections Integration
+Configure and manage connections to external data sources and services within your data pipeline.
+
+
+
+### Arguments Definition
+Define default and non-overridable arguments for Glue jobs to ensure consistent execution parameters.
+
+
+
+### Timeouts and Retry Configuration
+Configure execution timeouts and maximum retry attempts to ensure reliable pipeline execution.
+
+
+
+
+
+## 📑 Inputs
+| Name                     | Description                                                         | Type  | Default | Required |
+| ------------------------ | ------------------------------------------------------------------- | ----- | ------- | -------- |
+| data_pipeline_parameters | Data pipeline parameters to configure data pipeline module          | `any` | `{}`    | no       |
+| data_pipeline_defaults   | Data pipeline defaults parameters to configure data pipeline module | `any` | `{}`    | no       |
+| metadata                 | Common project information (naming, tags, etc.)                     | `any` | n/a     | yes      |
 
 
 
