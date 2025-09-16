@@ -84,7 +84,7 @@ features:
     short_description: Manages AWS Glue Jobs for serverless ETL processing
     long_description: |
       Deploy and manage AWS Glue Jobs that execute serverless ETL processes. Configure job parameters, connections, arguments, timeouts, and retry policies.
-    example: |
+
       ```hcl
       data_pipeline_parameters = {
         "my-pipeline" = {
@@ -142,7 +142,7 @@ features:
         }
       }
       ```
-    input_table: |
+
       #### Glue Job Variables
       | Name | Description | Type | Default | Required |
       |------|-------------|------|---------|:--------:|
@@ -173,7 +173,7 @@ features:
     short_description: Integrates data sources and destinations through Glue Connectors
     long_description: |
       Configure Glue Connectors to integrate various data sources and destinations with your data pipeline.
-    example: |
+
       ```hcl
       data_pipeline_parameters = {
         "my-pipeline" = {
@@ -208,7 +208,7 @@ features:
         }
       }
       ```
-    input_table: |
+
       #### Glue Connector Variables
       | Name | Description | Type | Default | Required |
       |------|-------------|------|---------|:--------:|
@@ -227,7 +227,7 @@ features:
     short_description: Automatically discovers and catalogs data schemas
     long_description: |
       Deploy and manage AWS Glue Crawlers that automatically discover data schemas from various sources like S3, JDBC databases, DynamoDB, and MongoDB. Configure crawling schedules, target databases, and schema change policies.
-    example: |
+
       ```hcl
       data_pipeline_parameters = {
         "my-pipeline" = {
@@ -275,8 +275,8 @@ features:
         }
       }
       ```
-    input_table: |
-      ## Glue Crawler Variables
+
+      #### Glue Crawler Variables
       | Name | Description | Type | Default | Required |
       |------|-------------|------|---------|:--------:|
       | create | If it is true, the resources will be created | `bool` | `true` | no |
@@ -304,7 +304,7 @@ features:
     short_description: Orchestrates complex workflow processes
     long_description: |
       Use AWS Step Functions to orchestrate complex data pipeline workflows with scheduling, error handling, and state management.
-    example: |
+    
       ```hcl
       data_pipeline_parameters = {
         "my-pipeline" = {
@@ -363,7 +363,7 @@ features:
         }
       }
       ```
-    input_table: |
+
       #### Step Function Variables
       | Name | Description | Type | Default | Required |
       |------|-------------|------|---------|:--------:|
