@@ -96,19 +96,3 @@ module "wrapper_step_function" {
   scheduler                              = each.value.scheduler
   tags                                   = each.value.tags
 }
-
-# module "wrapper_glue_workflow" {
-#   source = "./wrapper_glue_workflow"
-
-#   for_each = local.glue_workflow_parameters
-
-#   metadata = var.metadata
-
-#   create                 = each.value.create
-#   name                   = each.value.name
-#   description            = each.value.description
-#   default_run_properties = each.value.default_run_properties
-#   max_concurrent_runs    = each.value.max_concurrent_runs
-#   triggers               = each.value.triggers
-#   tags                   = each.value.tags
-# }
