@@ -114,6 +114,87 @@ module "wrapper_data_pipeline" {
 
 ### Glue Jobs Management
 Deploy and manage AWS Glue Jobs that execute serverless ETL processes. Configure job parameters, connections, arguments, timeouts, and retry policies.
+```hcl
+data_pipeline_parameters = {
+  "my-pipeline" = {
+    jobs = {
+      "etl-job" = {
+        description               = "ETL job for data processing"
+        glue_version             = "5.0"
+        max_retries              = 2
+        max_capacity             = 2
+        timeout                  = 180
+        execution_class          = "STANDARD"
+        worker_type              = "G.1X"
+        number_of_workers        = 2
+        create_parameter_store   = true
+        custom_parameter_store_name = "/my-pipeline/etl-job/config"
+
+        connections = ["my-database-connection"]
+
+        role_custom_policy = {
+          Version = "2012-10-17"
+          Statement = [
+            {
+              Effect = "Allow"
+              Action = ["s3:GetObject", "s3:PutObject"]
+              Resource = ["arn:aws:s3:::my-bucket/*"]
+            }
+          ]
+        }
+
+        default_arguments = {
+          "--source-bucket" = "my-source-bucket"
+          "--target-bucket" = "my-target-bucket"
+        }
+
+        non_overridable_arguments = {
+          "--enable-metrics" = "true"
+          "--enable-auto-scaling" = "true"
+        }
+
+        command = {
+          name            = "glueetl"
+          script_location = "s3://my-scripts-bucket/etl-script.py"
+          python_version  = "3"
+        }
+
+        execution_property = {
+          max_concurrent_runs = 1
+        }
+
+        notification_property = {
+          notify_delay_after = 60
+        }
+      }
+    }
+  }
+}
+```
+## Glue Job Variables
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| create | If it is true, the resources will be created | `bool` | `true` | no |
+| name | Glue job name | `string` | n/a | yes |
+| description | Glue job description | `string` | `null` | no |
+| role_custom_policy | A map of IAM policies for the job service role | `any` | n/a | yes |
+| connections | The list of connections used for this job | `list(string)` | `null` | no |
+| glue_version | The version of Glue to use | `string` | `"4.0"` | no |
+| create_parameter_store | Enables the creation of a custom parameter store | `bool` | `false` | no |
+| custom_parameter_store_name | Custom name for the parameter created | `string` | `null` | no |
+| default_arguments | The map of default arguments for the job | `map(string)` | `null` | no |
+| non_overridable_arguments | Non-overridable arguments for this job | `map(string)` | `null` | no |
+| security_configuration | The name of the Security Configuration | `string` | `null` | no |
+| timeout | The job timeout in minutes | `number` | `180` | no |
+| execution_class | Execution class (FLEX, STANDARD) | `string` | `"STANDARD"` | no |
+| max_capacity | Maximum number of DPUs | `number` | `null` | no |
+| max_retries | Maximum number of times to retry the job | `number` | `null` | no |
+| worker_type | Type of predefined worker (Standard, G.1X, G.2X) | `string` | `null` | no |
+| number_of_workers | Number of workers of a defined worker_type | `number` | `null` | no |
+| command | The command of the job | `map(any)` | n/a | yes |
+| execution_property | Execution property of the job | `object` | `null` | no |
+| notification_property | Notification property of the job | `object` | `null` | no |
+| tags | A mapping of tags to assign to resources | `map(string)` | n/a | yes |
 
 
 
