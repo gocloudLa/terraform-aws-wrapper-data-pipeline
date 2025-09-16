@@ -84,6 +84,7 @@ features:
     short_description: Manages AWS Glue Jobs for serverless ETL processing
     long_description: |
       Deploy and manage AWS Glue Jobs that execute serverless ETL processes. Configure job parameters, connections, arguments, timeouts, and retry policies.
+    example: |
       ```hcl
       data_pipeline_parameters = {
         "my-pipeline" = {
@@ -141,7 +142,8 @@ features:
         }
       }
       ```
-      ## Glue Job Variables
+    input_table: |
+      #### Glue Job Variables
       | Name | Description | Type | Default | Required |
       |------|-------------|------|---------|:--------:|
       | create | If it is true, the resources will be created | `bool` | `true` | no |
@@ -171,16 +173,219 @@ features:
     short_description: Integrates data sources and destinations through Glue Connectors
     long_description: |
       Configure Glue Connectors to integrate various data sources and destinations with your data pipeline.
-  - icon: 📊
-    title: Parameter Store Integration
-    short_description: Manages secure and reusable configurations
+    example: |
+      ```hcl
+      data_pipeline_parameters = {
+        "my-pipeline" = {
+          connectors = {
+            "database-connector" = {
+              description     = "Connection to PostgreSQL database"
+              connection_type = "JDBC"
+              
+              connection_properties = {
+                JDBC_CONNECTION_URL = "jdbc:postgresql://db.example.com:5432/mydb"
+                USERNAME           = "dbuser"
+                PASSWORD           = "dbpassword"
+              }
+              
+              physical_connection_requirements = {
+                subnet_id              = "subnet-12345678"
+                security_group_id_list = ["sg-12345678"]
+              }
+              
+              match_criteria = ["connection-criteria"]
+            },
+            "network-connector" = {
+              description     = "Network connection for VPC resources"
+              connection_type = "NETWORK"
+              
+              physical_connection_requirements = {
+                subnet_id              = "subnet-87654321"
+                security_group_id_list = ["sg-87654321"]
+              }
+            }
+          }
+        }
+      }
+      ```
+    input_table: |
+      #### Glue Connector Variables
+      | Name | Description | Type | Default | Required |
+      |------|-------------|------|---------|:--------:|
+      | create | If it is true, the resources will be created | `bool` | `true` | no |
+      | name | Glue connector name | `string` | n/a | yes |
+      | description | Glue connector description | `string` | `null` | no |
+      | connection_type | The type of the connection (JDBC, MONGODB, KAFKA, NETWORK) | `string` | `"JBDC"` | no |
+      | connection_properties | A map of key-value pairs used as parameters | `map(any)` | `{}` | no |
+      | catalog_id | The ID of the Data Catalog | `string` | `null` | no |
+      | match_criteria | A list of criteria for selecting this connection | `list(any)` | `[]` | no |
+      | physical_connection_requirements | Physical connection requirements (VPC, SecurityGroup) | `object` | `null` | no |
+      | tags | A mapping of tags to assign to resources | `map(string)` | n/a | yes |
+
+  - icon: 🕷️
+    title: Glue Crawler Management
+    short_description: Automatically discovers and catalogs data schemas
     long_description: |
-      Store and manage pipeline configurations securely using AWS Parameter Store for reusable and centralized configuration management.
+      Deploy and manage AWS Glue Crawlers that automatically discover data schemas from various sources like S3, JDBC databases, DynamoDB, and MongoDB. Configure crawling schedules, target databases, and schema change policies.
+    example: |
+      ```hcl
+      data_pipeline_parameters = {
+        "my-pipeline" = {
+          crawlers = {
+            "s3-crawler" = {
+              description   = "Crawler for S3 data lake"
+              database_name = "my_data_catalog"
+              schedule      = "cron(0 12 * * ? *)"
+              table_prefix  = "raw_"
+
+              s3_target = [
+                {
+                  path        = "s3://my-data-lake/raw-data/"
+                  exclusions  = ["*.tmp", "*.log"]
+                  sample_size = 100
+                }
+              ]
+
+              schema_change_policy = {
+                delete_behavior = "LOG"
+                update_behavior = "UPDATE_IN_DATABASE"
+              }
+
+              lineage_configuration = {
+                crawler_lineage_settings = "ENABLE"
+              }
+
+              recrawl_policy = {
+                recrawl_behavior = "CRAWL_EVERYTHING"
+              }
+            },
+            "jdbc-crawler" = {
+              description   = "Crawler for JDBC database"
+              database_name = "my_jdbc_catalog"
+
+              jdbc_target = [
+                {
+                  connection_name = "my-database-connection"
+                  path           = "mydb/public/%"
+                  exclusions     = ["temp_%"]
+                }
+              ]
+            }
+          }
+        }
+      }
+      ```
+    input_table: |
+      ## Glue Crawler Variables
+      | Name | Description | Type | Default | Required |
+      |------|-------------|------|---------|:--------:|
+      | create | If it is true, the resources will be created | `bool` | `true` | no |
+      | name | Glue crawler name | `string` | n/a | yes |
+      | description | Glue crawler description | `string` | `null` | no |
+      | database_name | Glue catalog database | `string` | n/a | yes |
+      | schedule | A cron expression for the schedule | `string` | `null` | no |
+      | classifiers | List of custom classifiers | `list(string)` | `null` | no |
+      | configuration | JSON string of configuration information | `string` | `null` | no |
+      | jdbc_target | List of nested JDBC target arguments | `list(any)` | `null` | no |
+      | dynamodb_target | List of nested DynamoDB target arguments | `list(any)` | `null` | no |
+      | s3_target | List of nested Amazon S3 target arguments | `list(any)` | `null` | no |
+      | mongodb_target | List of nested MongoDB target arguments | `list(any)` | `null` | no |
+      | catalog_target | List of nested Glue catalog target arguments | `list(object)` | `null` | no |
+      | delta_target | List of nested Delta target arguments | `list(object)` | `null` | no |
+      | table_prefix | The table prefix used for catalog tables | `string` | `null` | no |
+      | security_configuration | The name of Security Configuration | `string` | `null` | no |
+      | schema_change_policy | Policy for the crawler's update and deletion behavior | `map(string)` | `null` | no |
+      | lineage_configuration | Data lineage configuration settings | `object` | `null` | no |
+      | recrawl_policy | Policy for crawling behavior | `object` | `null` | no |
+      | tags | A mapping of tags to assign to resources | `map(string)` | n/a | yes |
+
   - icon: 🔄
     title: Step Functions Orchestration
     short_description: Orchestrates complex workflow processes
     long_description: |
       Use AWS Step Functions to orchestrate complex data pipeline workflows with scheduling, error handling, and state management.
+    example: |
+      ```hcl
+      data_pipeline_parameters = {
+        "my-pipeline" = {
+          orchestration = {
+            "workflow" = {
+              service     = "step-function"
+              description = "Data pipeline orchestration workflow"
+              type        = "STANDARD"
+
+              definition = jsonencode({
+                Comment = "Data Pipeline Workflow"
+                StartAt = "StartJob"
+                States = {
+                  StartJob = {
+                    Type     = "Task"
+                    Resource = "arn:aws:states:::glue:startJobRun.sync"
+                    Parameters = {
+                      JobName = "my-etl-job"
+                    }
+                    End = true
+                  }
+                }
+              })
+
+              logging_configuration = {
+                include_execution_data = true
+                level                 = "ALL"
+              }
+
+              cloudwatch_log_group_retention_in_days = 30
+              enable_xray_tracing                   = true
+
+              iam_role_permissions = {
+                create_glue_jobs_integration = true
+                create_sns_integration      = true
+              }
+
+              scheduler = {
+                "daily-schedule" = {
+                  cron     = "cron(0 9 * * ? *)"
+                  timezone = "America/New_York"
+                  input    = jsonencode({
+                    Arguments = {
+                      "--env" = "production"
+                    }
+                  })
+                }
+              }
+
+              encryption_configuration = {
+                kms_key_id = "arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012"
+                type       = "CUSTOMER_MANAGED_KMS_KEY"
+              }
+            }
+          }
+        }
+      }
+      ```
+    input_table: |
+      #### Step Function Variables
+      | Name | Description | Type | Default | Required |
+      |------|-------------|------|---------|:--------:|
+      | create | If it is true, the resources will be created | `bool` | `true` | no |
+      | name | Name of the resources to be created | `string` | n/a | yes |
+      | description | Resources description | `string` | `null` | no |
+      | definition | The Amazon States Language definition | `any` | n/a | yes |
+      | type | State machine type (STANDARD, EXPRESS) | `string` | `"STANDARD"` | no |
+      | publish | Set to true to publish a version | `bool` | `false` | no |
+      | logging_configuration | Execution history events logging configuration | `map(string)` | `{level = "ON"}` | no |
+      | cloudwatch_log_group_retention_in_days | Log retention in days | `number` | `30` | no |
+      | encryption_configuration | Encryption configuration | `map(any)` | n/a | yes |
+      | enable_xray_tracing | Enable AWS X-Ray tracing | `bool` | `false` | no |
+      | iam_role_permissions | List of resources managed from the state machine | `map(any)` | `{}` | no |
+      | scheduler | Map of EventBridge schedulers | `map(any)` | `{}` | no |
+      | tags | A mapping of tags to assign to resources | `map(string)` | n/a | yes |
+
+  - icon: 📊
+    title: Parameter Store Integration
+    short_description: Manages secure and reusable configurations
+    long_description: |
+      Store and manage pipeline configurations securely using AWS Parameter Store for reusable and centralized configuration management.
   - icon: 📅
     title: EventBridge Scheduling
     short_description: Programs and triggers pipeline events
@@ -215,284 +420,6 @@ important_notes: |
   - **🚨 Job Configuration:** Changes to Glue job configurations may require redeployment. Test thoroughly in development environments.
   - **⚠️ IAM Permissions:** Ensure proper IAM permissions are configured for cross-service integrations.
   - **ℹ️ Resource Limits:** Monitor Glue job capacity and Step Function execution limits to avoid throttling.
-examples:
-  glue_job: |
-    ```hcl
-    data_pipeline_parameters = {
-      "my-pipeline" = {
-        jobs = {
-          "etl-job" = {
-            description               = "ETL job for data processing"
-            glue_version             = "5.0"
-            max_retries              = 2
-            max_capacity             = 2
-            timeout                  = 180
-            execution_class          = "STANDARD"
-            worker_type              = "G.1X"
-            number_of_workers        = 2
-            create_parameter_store   = true
-            custom_parameter_store_name = "/my-pipeline/etl-job/config"
-            
-            connections = ["my-database-connection"]
-            
-            role_custom_policy = {
-              Version = "2012-10-17"
-              Statement = [
-                {
-                  Effect = "Allow"
-                  Action = ["s3:GetObject", "s3:PutObject"]
-                  Resource = ["arn:aws:s3:::my-bucket/*"]
-                }
-              ]
-            }
-            
-            default_arguments = {
-              "--source-bucket" = "my-source-bucket"
-              "--target-bucket" = "my-target-bucket"
-            }
-            
-            non_overridable_arguments = {
-              "--enable-metrics" = "true"
-              "--enable-auto-scaling" = "true"
-            }
-            
-            command = {
-              name            = "glueetl"
-              script_location = "s3://my-scripts-bucket/etl-script.py"
-              python_version  = "3"
-            }
-            
-            execution_property = {
-              max_concurrent_runs = 1
-            }
-            
-            notification_property = {
-              notify_delay_after = 60
-            }
-          }
-        }
-      }
-    }
-    ```
-    ## Glue Job Variables
-    | Name | Description | Type | Default | Required |
-    |------|-------------|------|---------|:--------:|
-    | create | If it is true, the resources will be created | `bool` | `true` | no |
-    | name | Glue job name | `string` | n/a | yes |
-    | description | Glue job description | `string` | `null` | no |
-    | role_custom_policy | A map of IAM policies for the job service role | `any` | n/a | yes |
-    | connections | The list of connections used for this job | `list(string)` | `null` | no |
-    | glue_version | The version of Glue to use | `string` | `"4.0"` | no |
-    | create_parameter_store | Enables the creation of a custom parameter store | `bool` | `false` | no |
-    | custom_parameter_store_name | Custom name for the parameter created | `string` | `null` | no |
-    | default_arguments | The map of default arguments for the job | `map(string)` | `null` | no |
-    | non_overridable_arguments | Non-overridable arguments for this job | `map(string)` | `null` | no |
-    | security_configuration | The name of the Security Configuration | `string` | `null` | no |
-    | timeout | The job timeout in minutes | `number` | `180` | no |
-    | execution_class | Execution class (FLEX, STANDARD) | `string` | `"STANDARD"` | no |
-    | max_capacity | Maximum number of DPUs | `number` | `null` | no |
-    | max_retries | Maximum number of times to retry the job | `number` | `null` | no |
-    | worker_type | Type of predefined worker (Standard, G.1X, G.2X) | `string` | `null` | no |
-    | number_of_workers | Number of workers of a defined worker_type | `number` | `null` | no |
-    | command | The command of the job | `map(any)` | n/a | yes |
-    | execution_property | Execution property of the job | `object` | `null` | no |
-    | notification_property | Notification property of the job | `object` | `null` | no |
-    | tags | A mapping of tags to assign to resources | `map(string)` | n/a | yes |
-
-  glue_connector: |
-    ```hcl
-    data_pipeline_parameters = {
-      "my-pipeline" = {
-        connectors = {
-          "database-connector" = {
-            description     = "Connection to PostgreSQL database"
-            connection_type = "JDBC"
-            
-            connection_properties = {
-              JDBC_CONNECTION_URL = "jdbc:postgresql://db.example.com:5432/mydb"
-              USERNAME           = "dbuser"
-              PASSWORD           = "dbpassword"
-            }
-            
-            physical_connection_requirements = {
-              subnet_id              = "subnet-12345678"
-              security_group_id_list = ["sg-12345678"]
-            }
-            
-            match_criteria = ["connection-criteria"]
-          },
-          "network-connector" = {
-            description     = "Network connection for VPC resources"
-            connection_type = "NETWORK"
-            
-            physical_connection_requirements = {
-              subnet_id              = "subnet-87654321"
-              security_group_id_list = ["sg-87654321"]
-            }
-          }
-        }
-      }
-    }
-    ```
-    ## Glue Connector Variables
-    | Name | Description | Type | Default | Required |
-    |------|-------------|------|---------|:--------:|
-    | create | If it is true, the resources will be created | `bool` | `true` | no |
-    | name | Glue connector name | `string` | n/a | yes |
-    | description | Glue connector description | `string` | `null` | no |
-    | connection_type | The type of the connection (JDBC, MONGODB, KAFKA, NETWORK) | `string` | `"JBDC"` | no |
-    | connection_properties | A map of key-value pairs used as parameters | `map(any)` | `{}` | no |
-    | catalog_id | The ID of the Data Catalog | `string` | `null` | no |
-    | match_criteria | A list of criteria for selecting this connection | `list(any)` | `[]` | no |
-    | physical_connection_requirements | Physical connection requirements (VPC, SecurityGroup) | `object` | `null` | no |
-    | tags | A mapping of tags to assign to resources | `map(string)` | n/a | yes |
-  
-  glue_crawler: |
-    ```hcl
-    data_pipeline_parameters = {
-      "my-pipeline" = {
-        crawlers = {
-          "s3-crawler" = {
-            description   = "Crawler for S3 data lake"
-            database_name = "my_data_catalog"
-            schedule      = "cron(0 12 * * ? *)"
-            table_prefix  = "raw_"
-            
-            s3_target = [
-              {
-                path        = "s3://my-data-lake/raw-data/"
-                exclusions  = ["*.tmp", "*.log"]
-                sample_size = 100
-              }
-            ]
-            
-            schema_change_policy = {
-              delete_behavior = "LOG"
-              update_behavior = "UPDATE_IN_DATABASE"
-            }
-            
-            lineage_configuration = {
-              crawler_lineage_settings = "ENABLE"
-            }
-            
-            recrawl_policy = {
-              recrawl_behavior = "CRAWL_EVERYTHING"
-            }
-          },
-          "jdbc-crawler" = {
-            description   = "Crawler for JDBC database"
-            database_name = "my_jdbc_catalog"
-            
-            jdbc_target = [
-              {
-                connection_name = "my-database-connection"
-                path           = "mydb/public/%"
-                exclusions     = ["temp_%"]
-              }
-            ]
-          }
-        }
-      }
-    }
-    ```
-    ## Glue Crawler Variables
-    | Name | Description | Type | Default | Required |
-    |------|-------------|------|---------|:--------:|
-    | create | If it is true, the resources will be created | `bool` | `true` | no |
-    | name | Glue crawler name | `string` | n/a | yes |
-    | description | Glue crawler description | `string` | `null` | no |
-    | database_name | Glue catalog database | `string` | n/a | yes |
-    | schedule | A cron expression for the schedule | `string` | `null` | no |
-    | classifiers | List of custom classifiers | `list(string)` | `null` | no |
-    | configuration | JSON string of configuration information | `string` | `null` | no |
-    | jdbc_target | List of nested JDBC target arguments | `list(any)` | `null` | no |
-    | dynamodb_target | List of nested DynamoDB target arguments | `list(any)` | `null` | no |
-    | s3_target | List of nested Amazon S3 target arguments | `list(any)` | `null` | no |
-    | mongodb_target | List of nested MongoDB target arguments | `list(any)` | `null` | no |
-    | catalog_target | List of nested Glue catalog target arguments | `list(object)` | `null` | no |
-    | delta_target | List of nested Delta target arguments | `list(object)` | `null` | no |
-    | table_prefix | The table prefix used for catalog tables | `string` | `null` | no |
-    | security_configuration | The name of Security Configuration | `string` | `null` | no |
-    | schema_change_policy | Policy for the crawler's update and deletion behavior | `map(string)` | `null` | no |
-    | lineage_configuration | Data lineage configuration settings | `object` | `null` | no |
-    | recrawl_policy | Policy for crawling behavior | `object` | `null` | no |
-    | tags | A mapping of tags to assign to resources | `map(string)` | n/a | yes |
-  
-  step_function: |
-    ```hcl
-    data_pipeline_parameters = {
-      "my-pipeline" = {
-        orchestration = {
-          "workflow" = {
-            service     = "step-function"
-            description = "Data pipeline orchestration workflow"
-            type        = "STANDARD"
-            
-            definition = jsonencode({
-              Comment = "Data Pipeline Workflow"
-              StartAt = "StartJob"
-              States = {
-                StartJob = {
-                  Type     = "Task"
-                  Resource = "arn:aws:states:::glue:startJobRun.sync"
-                  Parameters = {
-                    JobName = "my-etl-job"
-                  }
-                  End = true
-                }
-              }
-            })
-            
-            logging_configuration = {
-              include_execution_data = true
-              level                 = "ALL"
-            }
-            
-            cloudwatch_log_group_retention_in_days = 30
-            enable_xray_tracing                   = true
-            
-            iam_role_permissions = {
-              create_glue_jobs_integration = true
-              create_sns_integration      = true
-            }
-            
-            scheduler = {
-              "daily-schedule" = {
-                cron     = "cron(0 9 * * ? *)"
-                timezone = "America/New_York"
-                input    = jsonencode({
-                  Arguments = {
-                    "--env" = "production"
-                  }
-                })
-              }
-            }
-            
-            encryption_configuration = {
-              kms_key_id = "arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012"
-              type       = "CUSTOMER_MANAGED_KMS_KEY"
-            }
-          }
-        }
-      }
-    }
-    ```
-    ## Step Function Variables
-    | Name | Description | Type | Default | Required |
-    |------|-------------|------|---------|:--------:|
-    | create | If it is true, the resources will be created | `bool` | `true` | no |
-    | name | Name of the resources to be created | `string` | n/a | yes |
-    | description | Resources description | `string` | `null` | no |
-    | definition | The Amazon States Language definition | `any` | n/a | yes |
-    | type | State machine type (STANDARD, EXPRESS) | `string` | `"STANDARD"` | no |
-    | publish | Set to true to publish a version | `bool` | `false` | no |
-    | logging_configuration | Execution history events logging configuration | `map(string)` | `{level = "ON"}` | no |
-    | cloudwatch_log_group_retention_in_days | Log retention in days | `number` | `30` | no |
-    | encryption_configuration | Encryption configuration | `map(any)` | n/a | yes |
-    | enable_xray_tracing | Enable AWS X-Ray tracing | `bool` | `false` | no |
-    | iam_role_permissions | List of resources managed from the state machine | `map(any)` | `{}` | no |
-    | scheduler | Map of EventBridge schedulers | `map(any)` | `{}` | no |
-    | tags | A mapping of tags to assign to resources | `map(string)` | n/a | yes |
 
 input_table: |
   ## Main Variables
