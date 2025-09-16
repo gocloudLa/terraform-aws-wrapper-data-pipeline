@@ -450,13 +450,15 @@ Configure execution timeouts and maximum retry attempts to ensure reliable pipel
 
 
 ## 📑 Inputs
-| Name                     | Description                                                         | Type   | Default   | Required   |
-| ------------------------ | ------------------------------------------------------------------- | ------ | --------- | ---------- |
-| Name                     | Description                                                         | Type   | Default   | Required   |
-| ------                   | -------------                                                       | ------ | --------- | :--------: |
-| data_pipeline_parameters | Data pipeline parameters to configure data pipeline module          | `any`  | `{}`      | no         |
-| data_pipeline_defaults   | Data pipeline defaults parameters to configure data pipeline module | `any`  | `{}`      | no         |
-| metadata                 | Common project information (naming, tags, etc.)                     | `any`  | n/a       | yes        |
+| Name                     | Description                                                               | Type       | Default | Required |
+| ------------------------ | ------------------------------------------------------------------------- | ---------- | ------- | -------- |
+| data_pipeline_parameters | Data pipeline parameters to configure data pipeline module                | `any`      | `{}`    | no       |
+| data_pipeline_defaults   | Data pipeline defaults parameters to configure data pipeline module       | `any`      | `{}`    | no       |
+| metadata                 | Common project information (naming, tags, etc.)                           | `any`      | n/a     | yes      |
+| connectors               | Map of Glue connectors to deploy multiple connection resources            | `map(any)` | `{}`    | no       |
+| jobs                     | Map of Glue jobs to deploy multiple ETL job resources                     | `map(any)` | `{}`    | no       |
+| crawlers                 | Map of Glue crawlers to deploy multiple data discovery resources          | `map(any)` | `{}`    | no       |
+| orchestration            | Map of Step Functions to deploy multiple workflow orchestration resources | `map(any)` | `{}`    | no       |
 
 
 
